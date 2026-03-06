@@ -9,7 +9,7 @@ from .models import FloorRequest
 
 
 def home(request: HttpRequest) -> HttpResponse:
-    records = FloorRequest.objects.all()
+    records = FloorRequest.objects.filter(is_processed=False)
 
     query = request.GET.get("q", "").strip()
     floor_filter = request.GET.get("floor", "").strip()
@@ -24,7 +24,8 @@ def home(request: HttpRequest) -> HttpResponse:
         records = records.filter(floor=floor_filter)
 
     floors = (
-        FloorRequest.objects.exclude(floor="")
+        FloorRequest.objects.filter(is_processed=False)
+        .exclude(floor="")
         .values_list("floor", flat=True)
         .distinct()
         .order_by("floor")
@@ -37,6 +38,38 @@ def home(request: HttpRequest) -> HttpResponse:
         "floors": floors,
     }
     return render(request, "requests_app/home.html", context)
+
+
+def processed_list(request: HttpRequest) -> HttpResponse:
+    records = FloorRequest.objects.filter(is_processed=True)
+
+    query = request.GET.get("q", "").strip()
+    floor_filter = request.GET.get("floor", "").strip()
+
+    if query:
+        q_lower = query.lower()
+        records = records.filter(
+            models.Q(name__icontains=q_lower) | models.Q(email__icontains=q_lower)
+        )
+
+    if floor_filter:
+        records = records.filter(floor=floor_filter)
+
+    floors = (
+        FloorRequest.objects.filter(is_processed=True)
+        .exclude(floor="")
+        .values_list("floor", flat=True)
+        .distinct()
+        .order_by("floor")
+    )
+
+    context = {
+        "requests": records,
+        "query": query,
+        "floor_filter": floor_filter,
+        "floors": floors,
+    }
+    return render(request, "requests_app/processed.html", context)
 
 
 def request_detail(request: HttpRequest, request_id: int) -> HttpResponse:
@@ -99,13 +132,13 @@ def edit_request(request: HttpRequest, request_id: int) -> HttpResponse:
             return redirect(reverse("request_detail", args=[record.pk]))
     else:
         initial = {
-            "name": record.customer_name,
+            "name": record.name,
             "email": record.email,
             "badge_id": record.badge_id,
             "badge_type": record.badge_type,
             "floor": record.floor,
             "project": record.project,
-            "status": record.status,
+            "status": "",
         }
         form = RequestForm(initial=initial)
 
@@ -120,5 +153,18 @@ def edit_request(request: HttpRequest, request_id: int) -> HttpResponse:
 def delete_request(request: HttpRequest, request_id: int) -> HttpResponse:
     if request.method == "POST":
         FloorRequest.objects.filter(pk=request_id).delete()
+        return redirect(reverse("home"))
+    return redirect(reverse("home"))
+
+
+def mark_processed(request: HttpRequest, request_id: int) -> HttpResponse:
+    if request.method == "POST":
+        try:
+            record = FloorRequest.objects.get(pk=request_id)
+        except FloorRequest.DoesNotExist:
+            return redirect(reverse("home"))
+        if not record.is_processed:
+            record.is_processed = True
+            record.save(update_fields=["is_processed"])
         return redirect(reverse("home"))
     return redirect(reverse("home"))

@@ -13,6 +13,7 @@ class FloorRequest(models.Model):
     request_time = models.DateTimeField()
     created_at = models.DateTimeField(auto_now_add=True)
     is_read = models.BooleanField(default=False)
+    is_processed = models.BooleanField(default=False)
 
     class Meta:
         ordering = ["-created_at"]
