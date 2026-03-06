@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Floor Requests - Home</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+<nav class="navbar">
+    <div class="container">
+        <span class="navbar-brand">Floor Request Manager</span>
+        <div class="navbar-actions">
+            <a href="{% url 'add_request' %}" class="btn btn-primary">Add Request</a>
+        </div>
+    </div>
+</nav>
+
+<main class="container">
+    <h1>Request List</h1>
+
+    <form method="get" class="filter-form">
+        <div class="filter-row">
+            <div class="filter-group">
+                <label for="q">Search (Name / Email):</label>
+                <input type="text" id="q" name="q" value="{{ query }}" placeholder="Type keyword...">
+            </div>
+            <div class="filter-group">
+                <label for="floor">Floor:</label>
+                <select id="floor" name="floor">
+                    <option value="">-- All --</option>
+                    {% for f in floors %}
+                        <option value="{{ f }}" {% if f == floor_filter %}selected{% endif %}>
+                            {{ f }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="filter-group">
+                <button type="submit" class="btn btn-primary">Filter</button>
+                <a href="{% url 'home' %}" class="btn btn-light">Reset</a>
+            </div>
+        </div>
+    </form>
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Badge ID</th>
+            <th>Floor</th>
+            <th>Subject</th>
+            <th>Read</th>
+            <th style="width: 160px;">Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% if requests %}
+            {% for r in requests %}
+                <tr class="{% if not r.is_read %}unread-row{% endif %}">
+                    <td>{{ r.id }}</td>
+                    <td>
+                        <a href="{% url 'request_detail' r.id %}">
+                            {{ r.name }}
+                        </a>
+                    </td>
+                    <td>{{ r.email }}</td>
+                    <td>{{ r.badge_id }}</td>
+                    <td>{{ r.floor }}</td>
+                    <td>{{ r.mail_subject }}</td>
+                    <td>{% if r.is_read %}Yes{% else %}No{% endif %}</td>
+                    <td>
+                        <a href="{% url 'request_detail' r.id %}" class="btn btn-sm btn-secondary">View</a>
+                        <a href="{% url 'edit_request' r.id %}" class="btn btn-sm btn-primary">Edit</a>
+                        <form method="post" action="{% url 'delete_request' r.id %}" class="inline-form"
+                              onsubmit="return confirm('Delete this request?');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td colspan="7" class="text-center">No requests found.</td>
+            </tr>
+        {% endif %}
+        </tbody>
+    </table>
+</main>
+</body>
+</html>

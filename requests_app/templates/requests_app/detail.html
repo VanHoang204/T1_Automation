@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Request Detail</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+<nav class="navbar">
+    <div class="container">
+        <span class="navbar-brand">Floor Request Manager</span>
+        <div class="navbar-actions">
+            <a href="{% url 'home' %}" class="btn btn-secondary">Back to List</a>
+            <a href="{% url 'edit_request' request_obj.id %}" class="btn btn-primary">Edit</a>
+        </div>
+    </div>
+</nav>
+
+<main class="container">
+    <h1>Customer Detail</h1>
+
+    <div class="detail-card">
+        <div class="detail-row">
+            <span class="detail-label">Name:</span>
+            <span class="detail-value">{{ request_obj.customer_name }}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Email:</span>
+            <span class="detail-value">{{ request_obj.email }}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Badge ID:</span>
+            <span class="detail-value">{{ request_obj.badge_id }}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Badge Type:</span>
+            <span class="detail-value">{{ request_obj.badge_type }}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Floor:</span>
+            <span class="detail-value">{{ request_obj.floor }}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Project:</span>
+            <span class="detail-value">{{ request_obj.project }}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Status:</span>
+            <span class="detail-value">{{ request_obj.status }}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Created Time:</span>
+            <span class="detail-value">{{ request_obj.created_time }}</span>
+        </div>
+    </div>
+</main>
+</body>
+</html>
+

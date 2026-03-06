@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title }}</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+<nav class="navbar">
+    <div class="container">
+        <span class="navbar-brand">Floor Request Manager</span>
+        <div class="navbar-actions">
+            <a href="{% url 'home' %}" class="btn btn-secondary">Back to List</a>
+        </div>
+    </div>
+</nav>
+
+<main class="container">
+    <h1>{{ title }}</h1>
+
+    <form method="post" class="form-card">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="{{ form.name.id_for_label }}">Name</label>
+            {{ form.name }}
+            {% if form.name.errors %}
+                <div class="error">{{ form.name.errors }}</div>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.email.id_for_label }}">Email</label>
+            {{ form.email }}
+            {% if form.email.errors %}
+                <div class="error">{{ form.email.errors }}</div>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.badge_id.id_for_label }}">Badge ID</label>
+            {{ form.badge_id }}
+            {% if form.badge_id.errors %}
+                <div class="error">{{ form.badge_id.errors }}</div>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.badge_type.id_for_label }}">Badge Type</label>
+            {{ form.badge_type }}
+            {% if form.badge_type.errors %}
+                <div class="error">{{ form.badge_type.errors }}</div>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.floor.id_for_label }}">Floor</label>
+            {{ form.floor }}
+            {% if form.floor.errors %}
+                <div class="error">{{ form.floor.errors }}</div>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.project.id_for_label }}">Project</label>
+            {{ form.project }}
+            {% if form.project.errors %}
+                <div class="error">{{ form.project.errors }}</div>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.status.id_for_label }}">Status</label>
+            {{ form.status }}
+            {% if form.status.errors %}
+                <div class="error">{{ form.status.errors }}</div>
+            {% endif %}
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">{{ submit_label }}</button>
+            <a href="{% url 'home' %}" class="btn btn-light">Cancel</a>
+        </div>
+    </form>
+</main>
+</body>
+</html>
+
