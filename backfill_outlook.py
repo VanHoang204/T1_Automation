@@ -73,8 +73,15 @@ def backfill_all() -> None:
         if not entry_id:
             continue
 
-        if "t1approval@microsoft.com" not in sender.lower() and "floor request" not in subject.lower():
+        subject_lower = subject.lower()
+        sender_lower = sender.lower()
+
+        if "t1 approval" in subject_lower or "t1 approval" in sender_lower:
+            print(f"--> tim thay mail khop: {subject}")
+        else:
             continue
+
+        print(f"Khop mail: {subject}")
 
         if FloorRequest.objects.filter(mail_entry_id=entry_id).exists():
             continue

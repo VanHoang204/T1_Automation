@@ -11,6 +11,7 @@ class FloorRequest(models.Model):
     mail_subject = models.CharField(max_length=255, blank=True)
     mail_entry_id = models.CharField(max_length=255, unique=True)
     request_time = models.DateTimeField()
+    mail_received_time = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     is_read = models.BooleanField(default=False)
     is_processed = models.BooleanField(default=False)

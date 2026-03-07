@@ -51,7 +51,7 @@ def _process_entry(entry_id: str) -> None:
 
     logging.info("Email received: entry_id=%s subject=%s", entry_id, subject)
 
-    if "t1approval@microsoft.com" not in sender.lower() and "floor request" not in subject.lower():
+    if "T1Approval@microsoft.com" not in sender.lower() and "Floor Request" not in subject.lower():
         return
 
     parsed = parse_floor_request(body)
@@ -63,7 +63,7 @@ def _process_entry(entry_id: str) -> None:
         FloorRequest.objects.create(
             name=parsed.get("name", ""),
             email=parsed.get("email", ""),
-            badge_id=parsed.get("badge_id", ""),
+            badge_id=parsed.get("'badge_id", ""),
             badge_type=parsed.get("badge_type", ""),
             floor=parsed.get("floor", ""),
             project=parsed.get("project", ""),

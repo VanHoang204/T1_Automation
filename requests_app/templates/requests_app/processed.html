@@ -2,95 +2,161 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Processed Requests</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="/static/css/styles.css">
 </head>
 <body>
-<nav class="navbar">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
-        <span class="navbar-brand">Floor Request Manager</span>
-        <div class="navbar-actions">
-            <a href="{% url 'home' %}" class="btn btn-secondary">Inbox</a>
-            <a href="{% url 'processed_list' %}" class="btn btn-secondary">Processed</a>
-            <a href="{% url 'add_request' %}" class="btn btn-primary">Add Request</a>
+        <span class="navbar-brand">
+            <i class="bi bi-building"></i> Floor Request Manager
+        </span>
+        <div class="navbar-nav ms-auto">
+            <a href="{% url 'home' %}" class="btn btn-outline-light me-2">
+                <i class="bi bi-inbox"></i> Inbox
+            </a>
+            <a href="{% url 'processed_list' %}" class="btn btn-outline-light me-2 active">
+                <i class="bi bi-check-circle"></i> Processed
+            </a>
+            <a href="{% url 'add_request' %}" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Add Request
+            </a>
         </div>
     </div>
 </nav>
 
-<main class="container">
-    <h1>Processed Requests</h1>
-
-    <form method="get" class="filter-form">
-        <div class="filter-row">
-            <div class="filter-group">
-                <label for="q">Search (Name / Email):</label>
-                <input type="text" id="q" name="q" value="{{ query }}" placeholder="Type keyword...">
-            </div>
-            <div class="filter-group">
-                <label for="floor">Floor:</label>
-                <select id="floor" name="floor">
-                    <option value="">-- All --</option>
-                    {% for f in floors %}
-                        <option value="{{ f }}" {% if f == floor_filter %}selected{% endif %}>
-                            {{ f }}
-                        </option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="filter-group">
-                <button type="submit" class="btn btn-primary">Filter</button>
-                <a href="{% url 'processed_list' %}" class="btn btn-light">Reset</a>
+<main class="container my-4">
+    <!-- Search and Filter Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-4">
+                            <label for="q" class="form-label">Search</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-search"></i></span>
+                                <input type="text" id="q" name="q" value="{{ query }}" 
+                                       class="form-control" placeholder="Search by name or email...">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="floor" class="form-label">Floor</label>
+                            <select id="floor" name="floor" class="form-select">
+                                <option value="">-- All Floors --</option>
+                                {% for f in floors %}
+                                    <option value="{{ f }}" {% if f == floor_filter %}selected{% endif %}>
+                                        {{ f }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-5 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary me-2">
+                                <i class="bi bi-funnel"></i> Filter
+                            </button>
+                            <a href="{% url 'processed_list' %}" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-clockwise"></i> Reset
+                            </a>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
-    </form>
+    </div>
 
-    <table class="table">
-        <thead>
-        <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Badge ID</th>
-            <th>Floor</th>
-            <th>Subject</th>
-            <th>Read</th>
-            <th style="width: 160px;">Action</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% if requests %}
-            {% for r in requests %}
-                <tr>
-                    <td>{{ r.id }}</td>
-                    <td>
-                        <a href="{% url 'request_detail' r.id %}">
-                            {{ r.name }}
-                        </a>
-                    </td>
-                    <td>{{ r.email }}</td>
-                    <td>{{ r.badge_id }}</td>
-                    <td>{{ r.floor }}</td>
-                    <td>{{ r.mail_subject }}</td>
-                    <td>{% if r.is_read %}Yes{% else %}No{% endif %}</td>
-                    <td>
-                        <a href="{% url 'request_detail' r.id %}" class="btn btn-sm btn-secondary">View</a>
-                        <a href="{% url 'edit_request' r.id %}" class="btn btn-sm btn-primary">Edit</a>
-                        <form method="post" action="{% url 'delete_request' r.id %}" class="inline-form"
-                              onsubmit="return confirm('Delete this request?');">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
-                        </form>
-                    </td>
-                </tr>
-            {% endfor %}
-        {% else %}
-            <tr>
-                <td colspan="8" class="text-center">No processed requests found.</td>
-            </tr>
-        {% endif %}
-        </tbody>
-    </table>
+    <!-- Processed Requests Table -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="bi bi-check-circle-fill"></i> Processed Requests
+                    </h5>
+                    <span class="badge bg-success">{{ requests|length }} requests</span>
+                </div>
+                <div class="card-body p-0">
+                    {% if requests %}
+                        <div class="table-responsive">
+                            <table class="table table-hover table-striped mb-0">
+                                <thead class="table-dark sticky-top">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Badge ID</th>
+                                        <th>Floor</th>
+                                        <th>Subject</th>
+                                        <th>Mail Date</th>
+                                        <th>Processed Date</th>
+                                        <th style="width: 160px;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for r in requests %}
+                                        <tr>
+                                            <td><strong>{{ r.id }}</strong></td>
+                                            <td>
+                                                <a href="{% url 'request_detail' r.id %}" class="text-decoration-none">
+                                                    {{ r.name }}
+                                                </a>
+                                            </td>
+                                            <td><small>{{ r.email }}</small></td>
+                                            <td><code>{{ r.badge_id }}</code></td>
+                                            <td><span class="badge bg-secondary">{{ r.floor }}</span></td>
+                                            <td><small class="text-muted">{{ r.mail_subject|truncatechars:30 }}</small></td>
+                                            <td>
+                                                {% if r.mail_received_time %}
+                                                    {{ r.mail_received_time|date:"Y-m-d H:i" }}
+                                                {% else %}
+                                                    {{ r.created_at|date:"Y-m-d H:i" }}
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-light text-dark">
+                                                    {{ r.created_at|date:"Y-m-d" }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm" role="group">
+                                                    <a href="{% url 'request_detail' r.id %}" class="btn btn-outline-primary btn-hover" title="View">
+                                                        <i class="bi bi-eye"></i>
+                                                    </a>
+                                                    <a href="{% url 'edit_request' r.id %}" class="btn btn-outline-success btn-hover" title="Edit">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </a>
+                                                    <form method="post" action="{% url 'delete_request' r.id %}" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this request?');">
+                                                        {% csrf_token %}
+                                                        <button type="submit" class="btn btn-outline-danger btn-hover" title="Delete">
+                                                            <i class="bi bi-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="bi bi-check-circle display-1 text-success"></i>
+                            <h5 class="text-muted mt-3">No processed requests found</h5>
+                            <p class="text-muted">All requests are currently pending in the Inbox.</p>
+                            <a href="{% url 'home' %}" class="btn btn-primary mt-3">
+                                <i class="bi bi-inbox"></i> Go to Inbox
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
 </main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-

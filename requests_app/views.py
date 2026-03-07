@@ -31,11 +31,28 @@ def home(request: HttpRequest) -> HttpResponse:
         .order_by("floor")
     )
 
+    # Dashboard statistics
+    today = timezone.now().date()
+    today_requests = FloorRequest.objects.filter(
+        created_at__date=today
+    ).count()
+    unread_requests = FloorRequest.objects.filter(
+        is_read=False, is_processed=False
+    ).count()
+    processed_requests = FloorRequest.objects.filter(
+        is_processed=True
+    ).count()
+    total_requests = FloorRequest.objects.all().count()
+
     context = {
         "requests": records,
         "query": query,
         "floor_filter": floor_filter,
         "floors": floors,
+        "today_requests": today_requests,
+        "unread_requests": unread_requests,
+        "processed_requests": processed_requests,
+        "total_requests": total_requests,
     }
     return render(request, "requests_app/home.html", context)
 
@@ -153,7 +170,7 @@ def edit_request(request: HttpRequest, request_id: int) -> HttpResponse:
 def delete_request(request: HttpRequest, request_id: int) -> HttpResponse:
     if request.method == "POST":
         FloorRequest.objects.filter(pk=request_id).delete()
-        return redirect(reverse("home"))
+        return redirect(f"{reverse('home')}?action=deleted")
     return redirect(reverse("home"))
 
 
@@ -166,5 +183,5 @@ def mark_processed(request: HttpRequest, request_id: int) -> HttpResponse:
         if not record.is_processed:
             record.is_processed = True
             record.save(update_fields=["is_processed"])
-        return redirect(reverse("home"))
+        return redirect(f"{reverse('home')}?action=processed")
     return redirect(reverse("home"))
