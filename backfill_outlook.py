@@ -26,21 +26,42 @@ logging.basicConfig(
 )
 
 
-def backfill_inbox() -> None:
-    logging.info("Starting Outlook backfill")
+def _iter_all_mail_items(namespace):
+    for store in namespace.Folders:
+        try:
+            root = store
+        except Exception:
+            continue
+
+        folders = [root]
+        while folders:
+            folder = folders.pop()
+            try:
+                for sub in folder.Folders:
+                    folders.append(sub)
+            except Exception:
+                pass
+
+            try:
+                for item in folder.Items:
+                    yield item
+            except Exception:
+                continue
+
+
+def backfill_all() -> None:
+    logging.info("Starting Outlook backfill (all folders)")
 
     try:
         outlook = win32com.client.Dispatch("Outlook.Application")
         namespace = outlook.GetNamespace("MAPI")
-        inbox = namespace.GetDefaultFolder(6)
-        items = inbox.Items
     except Exception as exc:
-        logging.error("Failed to access Outlook Inbox: %s", exc)
+        logging.error("Failed to access Outlook: %s", exc)
         return
 
     count = 0
 
-    for item in items:
+    for item in _iter_all_mail_items(namespace):
         try:
             sender = str(getattr(item, "SenderEmailAddress", "") or "")
             subject = str(getattr(item, "Subject", "") or "")
@@ -82,5 +103,4 @@ def backfill_inbox() -> None:
 
 
 if __name__ == "__main__":
-    backfill_inbox()
-
+    backfill_all()
