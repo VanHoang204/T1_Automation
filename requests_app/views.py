@@ -1,4 +1,4 @@
-from django.http import Http404, HttpRequest, HttpResponse
+from django.http import Http404, HttpRequest, HttpResponse, JsonResponse
 from django.db import models
 from django.shortcuts import render, redirect
 from django.urls import reverse
@@ -9,49 +9,48 @@ from .models import FloorRequest
 
 
 def home(request: HttpRequest) -> HttpResponse:
-    records = FloorRequest.objects.filter(is_processed=False)
-
     query = request.GET.get("q", "").strip()
     floor_filter = request.GET.get("floor", "").strip()
 
+    pending = FloorRequest.objects.filter(is_processed=False)
+    processed = FloorRequest.objects.filter(is_processed=True)
+
     if query:
         q_lower = query.lower()
-        records = records.filter(
+        pending = pending.filter(
+            models.Q(name__icontains=q_lower) | models.Q(email__icontains=q_lower)
+        )
+        processed = processed.filter(
             models.Q(name__icontains=q_lower) | models.Q(email__icontains=q_lower)
         )
 
     if floor_filter:
-        records = records.filter(floor=floor_filter)
+        pending = pending.filter(floor=floor_filter)
+        processed = processed.filter(floor=floor_filter)
 
     floors = (
-        FloorRequest.objects.filter(is_processed=False)
-        .exclude(floor="")
+        FloorRequest.objects.exclude(floor="")
         .values_list("floor", flat=True)
         .distinct()
         .order_by("floor")
     )
 
-    # Dashboard statistics
     today = timezone.now().date()
-    today_requests = FloorRequest.objects.filter(
-        created_at__date=today
-    ).count()
-    unread_requests = FloorRequest.objects.filter(
-        is_read=False, is_processed=False
-    ).count()
-    processed_requests = FloorRequest.objects.filter(
-        is_processed=True
-    ).count()
+    today_requests = FloorRequest.objects.filter(created_at__date=today).count()
+    unread_requests = FloorRequest.objects.filter(is_read=False, is_processed=False).count()
+    processed_count = FloorRequest.objects.filter(is_processed=True).count()
     total_requests = FloorRequest.objects.all().count()
 
     context = {
-        "requests": records,
+        "requests": pending,
+        "pending_requests": pending,
+        "processed_requests": processed,
         "query": query,
         "floor_filter": floor_filter,
         "floors": floors,
         "today_requests": today_requests,
         "unread_requests": unread_requests,
-        "processed_requests": processed_requests,
+        "processed_requests": processed_count,
         "total_requests": total_requests,
     }
     return render(request, "requests_app/home.html", context)
@@ -179,9 +178,13 @@ def mark_processed(request: HttpRequest, request_id: int) -> HttpResponse:
         try:
             record = FloorRequest.objects.get(pk=request_id)
         except FloorRequest.DoesNotExist:
+            if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+                return JsonResponse({"ok": False, "error": "not_found"}, status=404)
             return redirect(reverse("home"))
         if not record.is_processed:
             record.is_processed = True
             record.save(update_fields=["is_processed"])
+        if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+            return JsonResponse({"ok": True, "id": record.pk, "status": "approved"})
         return redirect(f"{reverse('home')}?action=processed")
     return redirect(reverse("home"))

@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="/static/css/styles.css">
 </head>
 <body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+<nav class="navbar navbar-expand-lg bg-light border-bottom">
     <div class="container">
         <span class="navbar-brand">
             <i class="bi bi-building"></i> Floor Request Manager
@@ -29,57 +29,36 @@
 </nav>
 
 <main class="container my-4">
-    <!-- Dashboard Statistics Cards -->
-    <div class="row mb-4">
-        <div class="col-md-3 col-sm-6 mb-3">
-            <div class="card dashboard-card bg-primary text-white">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h5 class="card-title mb-0">Today's Requests</h5>
-                            <h2 class="mb-0">{{ today_requests }}</h2>
-                        </div>
-                        <i class="bi bi-calendar-day fs-1 opacity-75"></i>
-                    </div>
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="card">
+                <div class="card-body text-center">
+                    <div class="small text-muted">Today's Requests</div>
+                    <div class="h3 mb-0">{{ today_requests }}</div>
                 </div>
             </div>
         </div>
-        <div class="col-md-3 col-sm-6 mb-3">
-            <div class="card dashboard-card bg-warning text-white">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h5 class="card-title mb-0">Unread Requests</h5>
-                            <h2 class="mb-0">{{ unread_requests }}</h2>
-                        </div>
-                        <i class="bi bi-envelope fs-1 opacity-75"></i>
-                    </div>
+        <div class="col-6 col-md-3">
+            <div class="card">
+                <div class="card-body text-center">
+                    <div class="small text-muted">Unread Requests</div>
+                    <div class="h3 mb-0">{{ unread_requests }}</div>
                 </div>
             </div>
         </div>
-        <div class="col-md-3 col-sm-6 mb-3">
-            <div class="card dashboard-card bg-success text-white">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h5 class="card-title mb-0">Processed Requests</h5>
-                            <h2 class="mb-0">{{ processed_requests }}</h2>
-                        </div>
-                        <i class="bi bi-check-circle fs-1 opacity-75"></i>
-                    </div>
+        <div class="col-6 col-md-3">
+            <div class="card">
+                <div class="card-body text-center">
+                    <div class="small text-muted">Processed Requests</div>
+                    <div class="h3 mb-0">{{ processed_requests }}</div>
                 </div>
             </div>
         </div>
-        <div class="col-md-3 col-sm-6 mb-3">
-            <div class="card dashboard-card bg-info text-white">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h5 class="card-title mb-0">Total Requests</h5>
-                            <h2 class="mb-0">{{ total_requests }}</h2>
-                        </div>
-                        <i class="bi bi-bar-chart fs-1 opacity-75"></i>
-                    </div>
+        <div class="col-6 col-md-3">
+            <div class="card">
+                <div class="card-body text-center">
+                    <div class="small text-muted">Total Requests</div>
+                    <div class="h3 mb-0">{{ total_requests }}</div>
                 </div>
             </div>
         </div>
@@ -94,7 +73,6 @@
                         <div class="col-md-4">
                             <label for="q" class="form-label">Search</label>
                             <div class="input-group">
-                                <span class="input-group-text"><i class="bi bi-search"></i></span>
                                 <input type="text" id="q" name="q" value="{{ query }}" 
                                        class="form-control" placeholder="Search by name or email...">
                             </div>
@@ -111,12 +89,8 @@
                             </select>
                         </div>
                         <div class="col-md-5 d-flex align-items-end">
-                            <button type="submit" class="btn btn-primary me-2">
-                                <i class="bi bi-funnel"></i> Filter
-                            </button>
-                            <a href="{% url 'home' %}" class="btn btn-outline-secondary">
-                                <i class="bi bi-arrow-clockwise"></i> Reset
-                            </a>
+                            <button type="submit" class="btn btn-primary me-2">Filter</button>
+                            <a href="{% url 'home' %}" class="btn btn-outline-secondary">Reset</a>
                         </div>
                     </form>
                 </div>
@@ -124,21 +98,18 @@
         </div>
     </div>
 
-    <!-- Requests Table -->
     <div class="row">
         <div class="col-12">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">
-                        <i class="bi bi-list-ul"></i> Pending Requests
-                    </h5>
-                    <span class="badge bg-primary">{{ requests|length }} requests</span>
+                    <h5 class="mb-0">Pending Requests</h5>
+                    <span class="badge bg-secondary">{{ pending_requests|length }}</span>
                 </div>
                 <div class="card-body p-0">
-                    {% if requests %}
+                    {% if pending_requests %}
                         <div class="table-responsive">
                             <table class="table table-hover table-striped mb-0">
-                                <thead class="table-dark sticky-top">
+                                <thead>
                                     <tr>
                                         <th>ID</th>
                                         <th>Name</th>
@@ -148,19 +119,16 @@
                                         <th>Subject</th>
                                         <th>Mail Date</th>
                                         <th>Status</th>
-                                        <th style="width: 200px;">Actions</th>
+                                        <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {% for r in requests %}
-                                        <tr class="{% if not r.is_read %}table-warning{% endif %}">
+                                    {% for r in pending_requests %}
+                                        <tr>
                                             <td><strong>{{ r.id }}</strong></td>
                                             <td>
                                                 <a href="{% url 'request_detail' r.id %}" class="text-decoration-none">
                                                     {{ r.name }}
-                                                    {% if not r.is_read %}
-                                                        <span class="badge bg-warning ms-1">NEW</span>
-                                                    {% endif %}
                                                 </a>
                                             </td>
                                             <td><small>{{ r.email }}</small></td>
@@ -174,34 +142,14 @@
                                                     {{ r.created_at|date:"Y-m-d H:i" }}
                                                 {% endif %}
                                             </td>
+                                            <td class="status-cell"><span class="badge bg-warning">Pending</span></td>
                                             <td>
-                                                {% if r.is_processed %}
-                                                    <span class="badge bg-success">PROCESSED</span>
-                                                {% else %}
-                                                    <span class="badge bg-warning">PENDING</span>
-                                                {% endif %}
-                                            </td>
-                                            <td>
-                                                <div class="btn-group btn-group-sm" role="group">
-                                                    <a href="{% url 'request_detail' r.id %}" class="btn btn-outline-primary btn-hover" title="View">
-                                                        <i class="bi bi-eye"></i>
-                                                    </a>
-                                                    <a href="{% url 'edit_request' r.id %}" class="btn btn-outline-success btn-hover" title="Edit">
-                                                        <i class="bi bi-pencil"></i>
-                                                    </a>
-                                                    <form method="post" action="{% url 'mark_processed' r.id %}" class="d-inline">
-                                                        {% csrf_token %}
-                                                        <button type="submit" class="btn btn-outline-info btn-hover" title="Mark as Processed">
-                                                            <i class="bi bi-check-circle"></i>
-                                                        </button>
-                                                    </form>
-                                                    <form method="post" action="{% url 'delete_request' r.id %}" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this request?');">
-                                                        {% csrf_token %}
-                                                        <button type="submit" class="btn btn-outline-danger btn-hover" title="Delete">
-                                                            <i class="bi bi-trash"></i>
-                                                        </button>
-                                                    </form>
-                                                </div>
+                                                <button 
+                                                    type="button" 
+                                                    class="btn btn-success btn-sm approve-btn" 
+                                                    data-url="{% url 'mark_processed' r.id %}">
+                                                    Approve
+                                                </button>
                                             </td>
                                         </tr>
                                     {% endfor %}
@@ -210,9 +158,70 @@
                         </div>
                     {% else %}
                         <div class="text-center py-5">
-                            <i class="bi bi-inbox display-1 text-muted"></i>
-                            <h5 class="text-muted mt-3">No requests found</h5>
-                            <p class="text-muted">Try adjusting your search or filter criteria.</p>
+                            <h6 class="text-muted">No pending requests</h6>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Processed Requests</h5>
+                    <span class="badge bg-secondary">{{ processed_requests|length }}</span>
+                </div>
+                <div class="card-body p-0">
+                    {% if processed_requests %}
+                        <div class="table-responsive">
+                            <table class="table table-hover table-striped mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Badge ID</th>
+                                        <th>Floor</th>
+                                        <th>Subject</th>
+                                        <th>Mail Date</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="processed-tbody">
+                                    {% for r in processed_requests %}
+                                        <tr>
+                                            <td><strong>{{ r.id }}</strong></td>
+                                            <td>
+                                                <a href="{% url 'request_detail' r.id %}" class="text-decoration-none">
+                                                    {{ r.name }}
+                                                </a>
+                                            </td>
+                                            <td><small>{{ r.email }}</small></td>
+                                            <td><code>{{ r.badge_id }}</code></td>
+                                            <td><span class="badge bg-secondary">{{ r.floor }}</span></td>
+                                            <td><small class="text-muted">{{ r.mail_subject|truncatechars:30 }}</small></td>
+                                            <td>
+                                                {% if r.mail_received_time %}
+                                                    {{ r.mail_received_time|date:"Y-m-d H:i" }}
+                                                {% else %}
+                                                    {{ r.created_at|date:"Y-m-d H:i" }}
+                                                {% endif %}
+                                            </td>
+                                            <td class="status-cell"><span class="badge bg-success">Approved</span></td>
+                                            <td>
+                                                <a href="{% url 'request_detail' r.id %}" class="btn btn-outline-primary btn-sm">View</a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <h6 class="text-muted">No processed requests</h6>
                         </div>
                     {% endif %}
                 </div>
@@ -221,51 +230,43 @@
     </div>
 </main>
 
-<!-- Toast Notification Container -->
-<div class="toast-container position-fixed bottom-0 end-0 p-3">
-    <div id="actionToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="toast-header">
-            <i class="bi bi-check-circle-fill text-success me-2"></i>
-            <strong class="me-auto">Notification</strong>
-            <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
-        </div>
-        <div class="toast-body" id="toastMessage">
-            Action completed successfully!
-        </div>
-    </div>
-</div>
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // Show toast notification for actions
-    function showToast(message, type = 'success') {
-        const toast = document.getElementById('actionToast');
-        const toastMessage = document.getElementById('toastMessage');
-        const toastHeader = toast.querySelector('.toast-header');
-        
-        // Update message
-        toastMessage.textContent = message;
-        
-        // Update icon based on type
-        const icon = toastHeader.querySelector('i');
-        if (type === 'success') {
-            icon.className = 'bi bi-check-circle-fill text-success me-2';
-        } else if (type === 'error') {
-            icon.className = 'bi bi-exclamation-circle-fill text-danger me-2';
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+    }
+
+    document.addEventListener('click', async function (e) {
+        const btn = e.target.closest('.approve-btn');
+        if (!btn) return;
+        const url = btn.dataset.url;
+        const row = btn.closest('tr');
+        const csrftoken = getCookie('csrftoken');
+        btn.disabled = true;
+        try {
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrftoken,
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            const data = await res.json();
+            if (data.ok) {
+                const statusCell = row.querySelector('.status-cell');
+                statusCell.innerHTML = '<span class="badge bg-success">Approved</span>';
+                btn.remove();
+                const processedTbody = document.getElementById('processed-tbody');
+                if (processedTbody) processedTbody.prepend(row);
+            } else {
+                btn.disabled = false;
+            }
+        } catch (err) {
+            btn.disabled = false;
         }
-        
-        // Show toast
-        const bsToast = new bootstrap.Toast(toast);
-        bsToast.show();
-    }
-    
-    // Check for any action messages in URL parameters
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('action') === 'processed') {
-        showToast('Request marked as processed successfully!', 'success');
-    } else if (urlParams.get('action') === 'deleted') {
-        showToast('Request deleted successfully!', 'success');
-    }
+    });
 </script>
 </body>
 </html>
